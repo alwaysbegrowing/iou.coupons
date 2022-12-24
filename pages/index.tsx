@@ -1,160 +1,104 @@
-import React, { useEffect } from 'react';
-import { LaptopOutlined, NotificationOutlined, UserOutlined } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import { Breadcrumb, Layout, Menu, theme, Checkbox, Form, Input, Button, List, Card } from 'antd';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useContractWrite, usePrepareContractWrite } from 'wagmi'
-import { BigNumber } from 'ethers';
-import abi from '../abi.json'
-import useSWR from 'swr'
+import React, { useEffect, useState } from "react";
 
-
-
-
+import { Layout, Menu, theme, Form, Input, Button, List, Card } from "antd";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useContractWrite, usePrepareContractWrite, useAccount } from "wagmi";
+import abi from "../abi.json";
+import useSWR from "swr";
+import { NFTStorage } from "nft.storage";
 const { Content, Sider } = Layout;
 
-const fetcher = (url: string) => fetch(url).then(res => res.json())
+const NFT_API_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDk3ZGI1MDRCRDg0NzMyMThjQTYzQ0RhYjAwZkFiZkM5YTE3RGIzRDUiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY3MTg5NjQ4OTQ0NywibmFtZSI6IkZJbGVVcGxvYWQifQ.51sVxrzsYvblfStHgksTa8rk0h_gaRxk_KAWFEmz0X8";
 
-const url = "https://opt-goerli.g.alchemy.com/v2/ObMPjIMbmavofeNgNPVzHQ2jUldCe3i9/getNFTsForCollection?contractAddress=0xdF34022e8a280fc79499cA560439Bb6f9797EbD8&pageSize=100&withMetadata=true"
+async function getExampleImage(imageURL: string) {
+  const r = await fetch(imageURL);
+  if (!r.ok) {
+    throw new Error(`error fetching image: [${r.statusText}]: ${r.status}`);
+  }
+  return r.blob();
+}
 
-const items1: MenuProps['items'] = ['1'].map((key) => ({
-  key,
-  label: `View ${key}`,
-}));
-
-const data1 = [
-  {
-    title: 'Title 1',
-  },
-  {
-    title: 'Title 2',
-  },
-  {
-    title: 'Title 3',
-  },
-  {
-    title: 'Title 4',
-  },
-];
-
-
-
-const onFinishFailed = (errorInfo: any) => {
-  console.log('Failed:', errorInfo);
-};
-
-const items2: MenuProps['items'] = [UserOutlined, LaptopOutlined, NotificationOutlined].map(
-  (icon, index) => {
-    const key = String(index + 1);
-
-    return {
-      key: `sub${key}`,
-      icon: React.createElement(icon),
-      label: `subnav ${key}`,
-
-
-    };
-  },
-);
-
-
-const sidebars = [{ key: "test1", icon: React.createElement(UserOutlined), label: "Create Voucher" }]
 const App: React.FC = () => {
+  const [metadata, setMetadata] = useState("");
+  const [mint, setMint] = useState(false);
+  const { address } = useAccount();
+
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  const { data: collectionData, error } = useSWR(url, fetcher)
-  console.log({ collectionData })
 
-  const { config } = usePrepareContractWrite({
-    address: '0xdF34022e8a280fc79499cA560439Bb6f9797EbD8',
+  const { config, isSuccess: isSuccess2 } = usePrepareContractWrite({
+    address: "0x68DDa57a40C48213E2650E4b86ebcEF7a679Cb79",
     abi,
-    functionName: 'safeMint',
-    args: ["0xcafea1A2c9F4Af0Aaf1d5C4913cb8BA4bf0F9842", 'test']
-  })
+    functionName: "safeMint",
+    args: [address, metadata],
+  });
 
+  const client = new NFTStorage({ token: NFT_API_KEY });
 
+  const { data, isLoading, isSuccess, write, status } = useContractWrite(
+    config
+  );
+  const onFinish = async (values: any) => {
+    console.log("Success:", values);
+    const image = await getExampleImage(
+      "https://tse4.mm.bing.net/th?id=OIP.O4ikSivCInmY5l037ltIWwHaE8"
+    );
 
-
-  const { data, isLoading, isSuccess, write } = useContractWrite(config)
-  const onFinish = (values: any, write: any) => {
-    console.log('Success:', values);
-    write()
+    const nft = {
+      image,
+      name: values.name,
+      description: values.description,
+      authors: [{ name: address }],
+    };
+    const metadata = await client.store(nft);
+    console.log("NFT data stored!");
+    console.log("Metadata URI: ", metadata.url);
+    setMint((flag) => !flag);
+    setMetadata(metadata.url);
   };
+
+  useEffect(() => {
+    console.log("go", metadata, write, data);
+    if (isSuccess2 && metadata) {
+      write();
+    }
+  }, [isSuccess2, mint, metadata]);
+
   return (
-
-    < Layout style={{ height: "100vh" }
-    } >
-      <Sider width={200} style={{ background: colorBgContainer }}>
-        <Menu
-          mode="inline"
-          defaultSelectedKeys={['1']}
-          defaultOpenKeys={['sub1']}
-          style={{ height: '100%', borderRight: 0 }}
-          items={sidebars}
-        />
-
-      </Sider>
-      <Layout style={{ padding: '0 24px 24px' }}>
-        <div style={{ margin: '16px 0' }}>
-          <ConnectButton />
-        </div>
-        <Content
-          style={{
-            padding: 24,
-            margin: 0,
-            minHeight: 280,
-            background: colorBgContainer,
-            height: "100%"
-          }}
+    <>
+      <Form
+        name="basic"
+        labelCol={{ span: 4 }}
+        wrapperCol={{ span: 14 }}
+        initialValues={{ remember: true }}
+        requiredMark={false}
+        onFinish={(values) => onFinish(values)}
+      >
+        <Form.Item
+          label="Voucher Name"
+          name="name"
+          rules={[{ required: true, message: "Please input your username!" }]}
         >
+          <Input />
+        </Form.Item>
 
-          <Form
-            name="basic"
-            labelCol={{ span: 2 }}
+        <Form.Item
+          label="Description"
+          name="description"
+          rules={[{ required: true, message: "Please input your password!" }]}
+        >
+          <Input />
+        </Form.Item>
 
-            initialValues={{ remember: true }}
-            onFinish={(values) => onFinish(values, write)}
-            onFinishFailed={onFinishFailed}
-            autoComplete="off"
-          >
-            <Form.Item
-              label="Voucher Name"
-              name="voucher name"
-              rules={[{ required: true, message: 'Please input your username!' }]}
-            >
-              <Input />
-            </Form.Item>
-
-            <Form.Item
-              label="Description"
-              name="description"
-              rules={[{ required: true, message: 'Please input your password!' }]}
-            >
-              <Input />
-            </Form.Item>
-
-
-
-            <Form.Item wrapperCol={{ offset: 2, span: 16 }}>
-              <Button type="primary" htmlType="submit">
-                Create
-              </Button>
-            </Form.Item>
-          </Form>
-
-          <List
-            grid={{ gutter: 16, column: 4 }}
-            dataSource={collectionData?.nfts}
-            renderItem={(item) => (
-              <List.Item>
-                <Card title={item?.id?.tokenId}>Card content</Card>
-              </List.Item>
-            )}
-          />
-        </Content>
-      </Layout>
-    </Layout >
+        <Form.Item wrapperCol={{ offset: 4, span: 14 }}>
+          <Button type="primary" htmlType="submit">
+            Mint
+          </Button>
+        </Form.Item>
+      </Form>
+    </>
   );
 };
 
