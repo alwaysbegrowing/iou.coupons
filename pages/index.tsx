@@ -1,19 +1,41 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { LaptopOutlined, NotificationOutlined, UserOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Breadcrumb, Layout, Menu, theme, Checkbox, Form, Input, Button } from 'antd';
+import { Breadcrumb, Layout, Menu, theme, Checkbox, Form, Input, Button, List, Card } from 'antd';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useContractWrite, usePrepareContractWrite, useContractRead } from 'wagmi'
+import { useContractWrite, usePrepareContractWrite } from 'wagmi'
 import { BigNumber } from 'ethers';
 import abi from '../abi.json'
+import useSWR from 'swr'
+
+
+
 
 const { Content, Sider } = Layout;
+
+const fetcher = (url: string) => fetch(url).then(res => res.json())
+
+const url = "https://opt-goerli.g.alchemy.com/v2/ObMPjIMbmavofeNgNPVzHQ2jUldCe3i9/getNFTsForCollection?contractAddress=0xdF34022e8a280fc79499cA560439Bb6f9797EbD8&pageSize=100&withMetadata=true"
 
 const items1: MenuProps['items'] = ['1'].map((key) => ({
   key,
   label: `View ${key}`,
 }));
 
+const data1 = [
+  {
+    title: 'Title 1',
+  },
+  {
+    title: 'Title 2',
+  },
+  {
+    title: 'Title 3',
+  },
+  {
+    title: 'Title 4',
+  },
+];
 
 
 
@@ -35,30 +57,26 @@ const items2: MenuProps['items'] = [UserOutlined, LaptopOutlined, NotificationOu
   },
 );
 
-// 0x031b3b4bfEBDBfbECc20c41Bd058e3b81666894E
 
 const sidebars = [{ key: "test1", icon: React.createElement(UserOutlined), label: "Create Voucher" }]
 const App: React.FC = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-
+  const { data: collectionData, error } = useSWR(url, fetcher)
+  console.log({ collectionData })
 
   const { config } = usePrepareContractWrite({
-    address: '0x031b3b4bfEBDBfbECc20c41Bd058e3b81666894E',
+    address: '0xdF34022e8a280fc79499cA560439Bb6f9797EbD8',
     abi,
     functionName: 'safeMint',
-    args: ["0xcafea1A2c9F4Af0Aaf1d5C4913cb8BA4bf0F9842", BigNumber.from(1), 'test']
+    args: ["0xcafea1A2c9F4Af0Aaf1d5C4913cb8BA4bf0F9842", 'test']
   })
 
-  const { data: readData, isError } = useContractRead({
-    address: '0x031b3b4bfEBDBfbECc20c41Bd058e3b81666894E',
-    abi,
-    functionName: 'getHunger',
-  })
+
+
 
   const { data, isLoading, isSuccess, write } = useContractWrite(config)
-  console.log({ isSuccess, data })
   const onFinish = (values: any, write: any) => {
     console.log('Success:', values);
     write()
@@ -75,6 +93,7 @@ const App: React.FC = () => {
           style={{ height: '100%', borderRight: 0 }}
           items={sidebars}
         />
+
       </Sider>
       <Layout style={{ padding: '0 24px 24px' }}>
         <div style={{ margin: '16px 0' }}>
@@ -123,6 +142,16 @@ const App: React.FC = () => {
               </Button>
             </Form.Item>
           </Form>
+
+          <List
+            grid={{ gutter: 16, column: 4 }}
+            dataSource={collectionData?.nfts}
+            renderItem={(item) => (
+              <List.Item>
+                <Card title={item?.id?.tokenId}>Card content</Card>
+              </List.Item>
+            )}
+          />
         </Content>
       </Layout>
     </Layout >

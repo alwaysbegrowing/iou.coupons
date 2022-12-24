@@ -17,7 +17,7 @@ const { chains, provider, webSocketProvider } = configureChains(
   [
     jsonRpcProvider({
       rpc: () => ({
-        http: `https://eth-goerli.g.alchemy.com/v2/pmKvfZRRkFbQ9sGDbKuhFWm8YFksZdbk`,
+        http: `https://opt-goerli.g.alchemy.com/v2/ObMPjIMbmavofeNgNPVzHQ2jUldCe3i9`,
       }),
     }),
     publicProvider(),
