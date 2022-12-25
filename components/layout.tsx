@@ -13,7 +13,7 @@ const { Content, Sider } = Layout;
 
 
 
-const sidebars = [{ key: "/", icon: React.createElement(PlusOutlined), label: "Create Voucher" }, { key: "all", icon: React.createElement(EyeOutlined), label: "All Vouchers" }]
+const sidebars = [{ key: "/", icon: React.createElement(EyeOutlined), label: "Vouchers" },{ key: "mint", icon: React.createElement(PlusOutlined), label: "Mint" }]
 const App: React.FC = ({ children }) => {
     const router = useRouter();
 
@@ -27,7 +27,7 @@ const App: React.FC = ({ children }) => {
 
     return (
 
-        < Layout style={{ height: "100vh" }
+        < Layout style={{ minHeight: "100vh" }
         } >
             <Sider width={200} style={{ background: colorBgContainer }}>
                 <Menu

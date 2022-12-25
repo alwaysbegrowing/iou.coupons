@@ -1,104 +1,57 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from 'react';
+import { LaptopOutlined, NotificationOutlined, PlusOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
+import { EditOutlined, EllipsisOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 
-import { Layout, Menu, theme, Form, Input, Button, List, Card } from "antd";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useContractWrite, usePrepareContractWrite, useAccount } from "wagmi";
-import abi from "../abi.json";
-import useSWR from "swr";
-import { NFTStorage } from "nft.storage";
-const { Content, Sider } = Layout;
+import { Layout, Menu, theme, Form, Input, Button, List, Card } from 'antd';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useAccount } from 'wagmi'
+import useSWR from 'swr'
 
-const NFT_API_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDk3ZGI1MDRCRDg0NzMyMThjQTYzQ0RhYjAwZkFiZkM5YTE3RGIzRDUiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY3MTg5NjQ4OTQ0NywibmFtZSI6IkZJbGVVcGxvYWQifQ.51sVxrzsYvblfStHgksTa8rk0h_gaRxk_KAWFEmz0X8";
 
-async function getExampleImage(imageURL: string) {
-  const r = await fetch(imageURL);
-  if (!r.ok) {
-    throw new Error(`error fetching image: [${r.statusText}]: ${r.status}`);
-  }
-  return r.blob();
-}
+const fetcher = (url: string) => fetch(url).then(res => res.json())
+
+const url = "https://opt-goerli.g.alchemy.com/v2/ObMPjIMbmavofeNgNPVzHQ2jUldCe3i9/getNFTsForCollection?contractAddress=0x0271afEcb551bC642057C3e2A3191f5b8D80B08b&pageSize=100&withMetadata=true"
+
 
 const App: React.FC = () => {
-  const [metadata, setMetadata] = useState("");
-  const [mint, setMint] = useState(false);
-  const { address } = useAccount();
+  const [metadata, setMetadata] = useState('')
+  const { address } = useAccount()
 
   const {
     token: { colorBgContainer },
   } = theme.useToken();
+  const { data: collectionData } = useSWR(url, fetcher)
+  console.log({ collectionData })
 
-  const { config, isSuccess: isSuccess2 } = usePrepareContractWrite({
-    address: "0x68DDa57a40C48213E2650E4b86ebcEF7a679Cb79",
-    abi,
-    functionName: "safeMint",
-    args: [address, metadata],
-  });
 
-  const client = new NFTStorage({ token: NFT_API_KEY });
 
-  const { data, isLoading, isSuccess, write, status } = useContractWrite(
-    config
-  );
-  const onFinish = async (values: any) => {
-    console.log("Success:", values);
-    const image = await getExampleImage(
-      "https://tse4.mm.bing.net/th?id=OIP.O4ikSivCInmY5l037ltIWwHaE8"
-    );
 
-    const nft = {
-      image,
-      name: values.name,
-      description: values.description,
-      authors: [{ name: address }],
-    };
-    const metadata = await client.store(nft);
-    console.log("NFT data stored!");
-    console.log("Metadata URI: ", metadata.url);
-    setMint((flag) => !flag);
-    setMetadata(metadata.url);
-  };
 
-  useEffect(() => {
-    console.log("go", metadata, write, data);
-    if (isSuccess2 && metadata) {
-      write();
-    }
-  }, [isSuccess2, mint, metadata]);
+
+
+
 
   return (
+
     <>
-      <Form
-        name="basic"
-        labelCol={{ span: 4 }}
-        wrapperCol={{ span: 14 }}
-        initialValues={{ remember: true }}
-        requiredMark={false}
-        onFinish={(values) => onFinish(values)}
-      >
-        <Form.Item
-          label="Voucher Name"
-          name="name"
-          rules={[{ required: true, message: "Please input your username!" }]}
-        >
-          <Input />
-        </Form.Item>
 
-        <Form.Item
-          label="Description"
-          name="description"
-          rules={[{ required: true, message: "Please input your password!" }]}
-        >
-          <Input />
-        </Form.Item>
 
-        <Form.Item wrapperCol={{ offset: 4, span: 14 }}>
-          <Button type="primary" htmlType="submit">
-            Mint
-          </Button>
-        </Form.Item>
-      </Form>
+      <List
+        grid={{ gutter: 16, column: 4 }}
+        dataSource={collectionData?.nfts}
+        renderItem={(item) => (
+          <List.Item>
+            <Card   loading={!item.media[0].gateway} hoverable cover={<img alt="test" src={item.media[0].gateway || null } />} actions={[
+              <DeleteOutlined key="setting" />,
+            ]} >
+              <Card.Meta title={item.title} description={item.description}> </Card.Meta>
+            </Card>
+          </List.Item>
+        )}
+      />
     </>
+
   );
 };
 
