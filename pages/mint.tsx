@@ -1,41 +1,16 @@
 import React, { useEffect, useState } from "react";
 
-import {
-  Layout,
-  Menu,
-  theme,
-  Form,
-  Input,
-  Button,
-  List,
-  Card,
-  Spin,
-} from "antd";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Layout, theme, Form, Input, Button, Spin } from "antd";
 import { useContractWrite, usePrepareContractWrite, useAccount } from "wagmi";
 import abi from "../abi.json";
-import useSWR from "swr";
-import { NFTStorage } from "nft.storage";
-import { StepFunctionsStartExecution } from "aws-cdk-lib/aws-stepfunctions-tasks";
-const { Content, Sider } = Layout;
 const deepai = require("deepai");
 import { Alert } from "antd";
 import { useRouter } from "next/router";
-
-const NFT_API_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDk3ZGI1MDRCRDg0NzMyMThjQTYzQ0RhYjAwZkFiZkM5YTE3RGIzRDUiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY3MTg5NjQ4OTQ0NywibmFtZSI6IkZJbGVVcGxvYWQifQ.51sVxrzsYvblfStHgksTa8rk0h_gaRxk_KAWFEmz0X8";
-
-async function getExampleImage(imageURL: string) {
-  const r = await fetch(imageURL);
-  if (!r.ok) {
-    throw new Error(`error fetching image: [${r.statusText}]: ${r.status}`);
-  }
-  return r.blob();
-}
+import { contractAddress } from "../services/hooks";
+import { client, getExampleImage } from "../services/storage";
 
 const App: React.FC = () => {
   const router = useRouter();
-
   const [form] = Form.useForm();
 
   const [metadata, setMetadata] = useState("");
@@ -49,13 +24,11 @@ const App: React.FC = () => {
   } = theme.useToken();
 
   const { config, isSuccess: isSuccess2 } = usePrepareContractWrite({
-    address: "0x0271afEcb551bC642057C3e2A3191f5b8D80B08b",
+    address: contractAddress,
     abi,
     functionName: "safeMint",
     args: [address, metadata],
   });
-
-  const client = new NFTStorage({ token: NFT_API_KEY });
 
   const { data, isLoading, isSuccess, write, status } = useContractWrite(
     config
@@ -85,8 +58,7 @@ const App: React.FC = () => {
       authors: [{ name: address }],
     };
     const metadata = await client.store(nft);
-    console.log("NFT data stored!");
-    console.log("Metadata URI: ", metadata.url);
+
     setMint((flag) => !flag);
     setMetadata(metadata.url);
     setLoading(false);

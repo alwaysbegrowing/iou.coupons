@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { LaptopOutlined, NotificationOutlined, PlusOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { EditOutlined, EllipsisOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import { EditOutlined, EllipsisOutlined, DeleteOutlined, EyeOutlined, FireOutlined } from '@ant-design/icons';
 
 import { Layout, Menu, theme, Form, Input, Button, List, Card } from 'antd';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
@@ -13,7 +13,7 @@ const { Content, Sider } = Layout;
 
 
 
-const sidebars = [{ key: "/", icon: React.createElement(EyeOutlined), label: "Vouchers" },{ key: "mint", icon: React.createElement(PlusOutlined), label: "Mint" }]
+const sidebars = [{ key: "/", icon: React.createElement(EyeOutlined), label: "Active Vouchers" },{ key: "mint", icon: React.createElement(PlusOutlined), label: "Mint" }, { key: "/burned", icon: React.createElement(FireOutlined), label: "Used Vouchers" }]
 const App: React.FC = ({ children }) => {
     const router = useRouter();
 

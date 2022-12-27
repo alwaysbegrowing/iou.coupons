@@ -1,57 +1,56 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { LaptopOutlined, NotificationOutlined, PlusOutlined } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import { EditOutlined, EllipsisOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import React, { useState } from "react";
+import { DeleteOutlined } from "@ant-design/icons";
+import abi from "../abi.json";
 
-import { Layout, Menu, theme, Form, Input, Button, List, Card } from 'antd';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount } from 'wagmi'
-import useSWR from 'swr'
-
-
-const fetcher = (url: string) => fetch(url).then(res => res.json())
-
-const url = "https://opt-goerli.g.alchemy.com/v2/ObMPjIMbmavofeNgNPVzHQ2jUldCe3i9/getNFTsForCollection?contractAddress=0x0271afEcb551bC642057C3e2A3191f5b8D80B08b&pageSize=100&withMetadata=true"
-
+import { List, Card } from "antd";
+import { client, getExampleImage } from "../services/storage";
+import { contractAddress, useNFTs } from "../services/hooks";
+import { useContractWrite, usePrepareContractWrite, useAccount } from "wagmi";
 
 const App: React.FC = () => {
-  const [metadata, setMetadata] = useState('')
-  const { address } = useAccount()
+  // const { config, isSuccess: isSuccess2, error } = usePrepareContractWrite({
+  //   address: contractAddress,
+  //   abi,
+  //   functionName: "burn",
+  //   args: [
 
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
-  const { data: collectionData } = useSWR(url, fetcher)
-  console.log({ collectionData })
+  //   ],
+  // });
+  const { data: collectionData } = useNFTs();
 
+  // const { data, isLoading, isSuccess, write, status } = useContractWrite(
+  //   config
+  // );
 
-
-
-
-
-
-
-
+  const deleteNFT = async (index: number, write: any) => {
+    write();
+  };
   return (
-
     <>
-
-
       <List
         grid={{ gutter: 16, column: 4 }}
-        dataSource={collectionData?.nfts}
-        renderItem={(item) => (
+        dataSource={collectionData}
+        renderItem={(item: any, index: number) => (
           <List.Item>
-            <Card   loading={!item.media[0].gateway} hoverable cover={<img alt="test" src={item.media[0].gateway || null } />} actions={[
-              <DeleteOutlined key="setting" />,
-            ]} >
-              <Card.Meta title={item.title} description={item.description}> </Card.Meta>
+            <Card
+              loading={!item.media[0].gateway}
+              hoverable
+              cover={
+                item.media[0].gateway ? (
+                  <img alt="test" src={item.media[0].gateway} />
+                ) : null
+              }
+              // actions={[<DeleteOutlined onClick={write} key="setting" />]}
+            >
+              <Card.Meta
+                title={item.title}
+                description={item.description}
+              ></Card.Meta>
             </Card>
           </List.Item>
         )}
       />
     </>
-
   );
 };
 
