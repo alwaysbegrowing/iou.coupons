@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 
-import { Layout, theme, Form, Input, Button, Spin } from "antd";
+import { Layout, theme, Form, Input, Button, Spin, Select } from "antd";
 import { useContractWrite, usePrepareContractWrite, useAccount } from "wagmi";
 import abi from "../abi.json";
 const deepai = require("deepai");
 import { Alert } from "antd";
 import { useRouter } from "next/router";
 import { contractAddress } from "../services/hooks";
-import { client, getExampleImage } from "../services/storage";
+import { client, getExampleImage, userList } from "../services/storage";
 
 const App: React.FC = () => {
   const router = useRouter();
@@ -19,17 +19,14 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { address } = useAccount();
 
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
-
   const { config, isSuccess: isSuccess2 } = usePrepareContractWrite({
     address: contractAddress,
     abi,
     functionName: "safeMint",
     args: [address, metadata],
   });
-
+  {
+  }
   const { data, isLoading, isSuccess, write, status } = useContractWrite(
     config
   );
@@ -38,7 +35,8 @@ const App: React.FC = () => {
     if (isSuccess) {
       form.resetFields();
     }
-  }, [isSuccess]);
+  }, [isSuccess, form]);
+
   const onFinish = async (values: any) => {
     setLoading(true);
     console.log("Success:", values);
@@ -56,6 +54,8 @@ const App: React.FC = () => {
       name: values.name,
       description: values.description,
       authors: [{ name: address }],
+      from: address,
+      to: values.to,
     };
     const metadata = await client.store(nft);
 
@@ -83,6 +83,14 @@ const App: React.FC = () => {
           requiredMark={false}
           onFinish={(values) => onFinish(values)}
         >
+          <Form.Item
+            label="Recipient"
+            name="to"
+            rules={[{ required: true, message: "Please enter a recipient" }]}
+          >
+            <Select options={userList} />
+          </Form.Item>
+
           <Form.Item
             label="Voucher Name"
             name="name"
