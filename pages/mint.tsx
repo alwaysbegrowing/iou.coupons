@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 import { Layout, theme, Form, Input, Button, Spin, Select } from "antd";
 import { useContractWrite, usePrepareContractWrite, useAccount } from "wagmi";
@@ -8,16 +9,17 @@ import { Alert } from "antd";
 import { useRouter } from "next/router";
 import { contractAddress } from "../services/hooks";
 import { client, getExampleImage, userList } from "../services/storage";
+import { users } from "../services/storage";
 
 const App: React.FC = () => {
   const router = useRouter();
   const [form] = Form.useForm();
+  const { isConnected, address } = useAccount();
 
   const [metadata, setMetadata] = useState("");
 
   const [mint, setMint] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { address } = useAccount();
 
   const { config, isSuccess: isSuccess2 } = usePrepareContractWrite({
     address: contractAddress,
@@ -68,6 +70,17 @@ const App: React.FC = () => {
     }
   }, [isSuccess2, mint, metadata]);
 
+  if (!isConnected)
+    return (
+      <>
+        Please connect your wallet to create a voucher
+        <ConnectButton></ConnectButton>
+      </>
+    );
+
+  if (address && !users[address]) {
+    return "this account is not allowed to mint";
+  }
   return (
     <>
       <Spin spinning={loading || isLoading}>
@@ -91,7 +104,9 @@ const App: React.FC = () => {
           <Form.Item
             label="Voucher Name"
             name="name"
-            rules={[{ required: true, message: "Please input your username!" }]}
+            rules={[
+              { required: true, message: "Please input a voucher name!" },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -99,7 +114,7 @@ const App: React.FC = () => {
           <Form.Item
             label="Description"
             name="description"
-            rules={[{ required: true, message: "Please input your password!" }]}
+            rules={[{ required: true, message: "Please input a description!" }]}
           >
             <Input />
           </Form.Item>
