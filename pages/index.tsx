@@ -50,7 +50,7 @@ const App: React.FC = () => {
     >
       <List
         loading={isLoading}
-        grid={{ gutter: 16, column: 4 }}
+        grid={{ column: 3 }}
         dataSource={collectionData}
         renderItem={(item: any, index: number) => (
           <List.Item>
