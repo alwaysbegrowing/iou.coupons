@@ -13,17 +13,18 @@ const { Content, Sider } = Layout;
 
 
 
-const sidebars = [{ key: "/", icon: React.createElement(EyeOutlined), label: "Active Vouchers" },{ key: "mint", icon: React.createElement(PlusOutlined), label: "Mint" }, { key: "/burned", icon: React.createElement(FireOutlined), label: "Used Vouchers" }]
+const sidebars = [{ key: "/", icon: React.createElement(EyeOutlined), label: "Active Vouchers" },{ key: "/burned", icon: React.createElement(FireOutlined), label: "Used Vouchers" }, { key: "/mint", icon: React.createElement(PlusOutlined), label: "Mint" }, ]
 const App: React.FC = ({ children }) => {
     const router = useRouter();
-
 
     const {
         token: { colorBgContainer },
     } = theme.useToken();
+    const [selected, setSelected] = useState('/')
+    
+    useEffect(() => {setSelected(router.route)}, [router.route])
 
-
-
+    console.log({selected})
 
     return (
 
@@ -33,15 +34,15 @@ const App: React.FC = ({ children }) => {
                 <Menu
                     onClick={({key}) =>     router.push(key)}
                     mode="inline"
-                    defaultSelectedKeys={['1']}
-                    defaultOpenKeys={['sub1']}
-                    style={{ height: '100%', borderRight: 0 }}
+                                        defaultSelectedKeys={['/']}
+                                        selectedKeys={[selected]}
+
                     items={sidebars}
                 />
 
             </Sider>
             <Layout style={{ padding: '0 24px 24px' }}>
-                <div style={{ margin: '16px 0' }}>
+                <div style={{ margin: '16px 0', alignSelf: 'end' }}>
                     <ConnectButton />
                 </div>
                 <Content
