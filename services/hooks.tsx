@@ -6,7 +6,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 const baseURL = "https://opt-goerli.g.alchemy.com/v2/";
 const key = "ObMPjIMbmavofeNgNPVzHQ2jUldCe3i9";
 const zeroAddresss = "0x0000000000000000000000000000000000000000";
-export const contractAddress = "0x210BEFFf236c0110fb1A7c3cde9CEEcbBD896681";
+export const contractAddress = "0x196f94542C10c37917Fd8D7F5CbA016A711eba35";
 export const useBurned = () => {
   const url = `${baseURL}${key}/getNFTs?owner=${zeroAddresss}&contractAddresses[]=${contractAddress}`;
   const { data, isLoading, error } = useSWR(url, fetcher);
