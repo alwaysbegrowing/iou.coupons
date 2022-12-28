@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { DeleteOutlined, GiftOutlined } from "@ant-design/icons";
-import abi from "../abi.json";
+import contractABI from "../abi.json";
 
 import { List, Card, Badge, Tag, ConfigProvider, Empty, Button } from "antd";
 import { users } from "../services/storage";
@@ -8,13 +8,13 @@ import { contractAddress, useNFTs } from "../services/hooks";
 import {
   useContractWrite,
   usePrepareContractWrite,
-  useAccount,
   useContractRead,
-  useContractReads,
 } from "wagmi";
 import Link from "next/link";
 
 const App: React.FC = () => {
+  const abi = contractABI as readonly {}[];
+
   const [deleteId, setDeleteId] = useState();
 
   const { config, isSuccess } = usePrepareContractWrite({
@@ -24,19 +24,8 @@ const App: React.FC = () => {
     args: [Number(deleteId)],
   });
   const { activeNFTs: collectionData, isLoading } = useNFTs();
-
-  const address = {
-    address: contractAddress,
-    abi,
-    functionName: "tokenURI",
-  };
-
-  const { data: totalSupply } = useContractRead({
-    ...address,
-    functionName: "totalSupply",
-  });
-
-  const { data, write, status } = useContractWrite(config);
+  // @ts-ignore
+  const { write } = useContractWrite(config);
 
   const deleteNFT = async (index: number, write: any) => {
     write();

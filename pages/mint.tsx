@@ -25,9 +25,9 @@ const App: React.FC = () => {
     functionName: "safeMint",
     args: [address, metadata],
   });
-  {
-  }
+
   const { data, isLoading, isSuccess, write, status } = useContractWrite(
+    // @ts-ignore
     config
   );
 
@@ -63,7 +63,7 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isSuccess2 && metadata) {
+    if (isSuccess2 && metadata && write) {
       write();
     }
   }, [isSuccess2, mint, metadata]);
