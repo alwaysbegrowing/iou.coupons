@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { DeleteOutlined, GiftOutlined } from "@ant-design/icons";
 import abi from "../abi.json";
 
-import { List, Card, Badge, Tag } from "antd";
+import { List, Card, Badge, Tag, ConfigProvider, Empty, Button } from "antd";
 import { users } from "../services/storage";
 import { contractAddress, useNFTs } from "../services/hooks";
 import {
@@ -12,6 +12,7 @@ import {
   useContractRead,
   useContractReads,
 } from "wagmi";
+import Link from "next/link";
 
 const App: React.FC = () => {
   const [deleteId, setDeleteId] = useState();
@@ -49,7 +50,21 @@ const App: React.FC = () => {
     }
   }, [deleteId, isSuccess]);
   return (
-    <>
+    <ConfigProvider
+      renderEmpty={() => (
+        <Empty
+          image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+          imageStyle={{
+            height: 60,
+          }}
+          description={<span>There are no current vouchers</span>}
+        >
+          <Link href="/mint">
+            <Button type="primary">Create Voucher</Button>
+          </Link>
+        </Empty>
+      )}
+    >
       <List
         loading={isLoading}
         grid={{ gutter: 16, column: 4 }}
@@ -90,7 +105,7 @@ const App: React.FC = () => {
           </List.Item>
         )}
       />
-    </>
+    </ConfigProvider>
   );
 };
 
