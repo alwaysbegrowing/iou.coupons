@@ -1,19 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { DeleteOutlined, GiftOutlined } from "@ant-design/icons";
-import contractABI from "../abi.json";
+import abi from "../abi.json";
 
 import { List, Card, Badge, Tag, ConfigProvider, Empty, Button } from "antd";
 import { users } from "../services/storage";
 import { contractAddress, useNFTs } from "../services/hooks";
-import {
-  useContractWrite,
-  usePrepareContractWrite,
-  useContractRead,
-} from "wagmi";
+import { useContractWrite, usePrepareContractWrite, useAccount } from "wagmi";
 import Link from "next/link";
 
 const App: React.FC = () => {
-  const abi = contractABI as readonly {}[];
+  const { isConnected, address } = useAccount();
 
   const [deleteId, setDeleteId] = useState();
 
@@ -75,6 +71,7 @@ const App: React.FC = () => {
                 }
                 actions={[
                   <DeleteOutlined
+                    disabled={address && !users[address]}
                     onClick={() => setDeleteId(item.id.tokenId)}
                     key="setting"
                   />,
