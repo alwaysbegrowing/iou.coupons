@@ -10,6 +10,7 @@ import {
   usePrepareContractWrite,
   useAccount,
   useContractRead,
+  useContractReads,
 } from "wagmi";
 
 const App: React.FC = () => {
@@ -21,12 +22,12 @@ const App: React.FC = () => {
     functionName: "burn",
     args: [Number(deleteId)],
   });
-  const { data: collectionData, isLoading } = useNFTs();
+  const { activeNFTs: collectionData, isLoading } = useNFTs();
 
   const address = {
     address: contractAddress,
     abi,
-    functionName: "tokenByIndex",
+    functionName: "tokenURI",
   };
 
   const { data: totalSupply } = useContractRead({
@@ -34,8 +35,7 @@ const App: React.FC = () => {
     functionName: "totalSupply",
   });
   console.log(totalSupply);
-  // const { data, isError, isLoading } = useContractReads({
-  //   contracts: []
+
   const { data, write, status } = useContractWrite(config);
 
   const deleteNFT = async (index: number, write: any) => {
@@ -56,7 +56,13 @@ const App: React.FC = () => {
         dataSource={collectionData}
         renderItem={(item: any, index: number) => (
           <List.Item>
-            <Badge.Ribbon text={`To: ${users[item.metadata.to]}`}>
+            <Badge.Ribbon
+              text={
+                item?.metadata?.to
+                  ? `To: ${users[item.metadata.to]}`
+                  : "loading..."
+              }
+            >
               <Card
                 loading={!item.media[0].gateway}
                 hoverable

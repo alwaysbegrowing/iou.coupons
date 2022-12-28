@@ -1,14 +1,14 @@
 import React from "react";
 import { List, Card } from "antd";
-import { useBurned } from "../services/hooks";
+import { useNFTs } from "../services/hooks";
 
 const App: React.FC = () => {
-  const { data } = useBurned();
+  const { burnedNFTs } = useNFTs();
   return (
     <>
       <List
         grid={{ gutter: 16, column: 4 }}
-        dataSource={data}
+        dataSource={burnedNFTs}
         renderItem={(item: any, index: number) => (
           <List.Item>
             <Card
