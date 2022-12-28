@@ -24,7 +24,6 @@ const App: React.FC = ({ children }) => {
     
     useEffect(() => {setSelected(router.route)}, [router.route])
 
-    console.log({selected})
 
     return (
 

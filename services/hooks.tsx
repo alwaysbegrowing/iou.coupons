@@ -27,7 +27,6 @@ export const useNFTs = () => {
 
   const url = `${baseURL}${key}/getNFTsForCollection?contractAddress=${contractAddress}&pageSize=100&withMetadata=true`;
   const { data: allNFTs, isLoading: isLoadingAll } = useSWR(url, fetcher);
-  console.log({ allNFTs });
   const {
     data: metaDataURLs,
     isLoading: isLoadingBurned,

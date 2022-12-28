@@ -39,14 +39,12 @@ const App: React.FC = () => {
 
   const onFinish = async (values: any) => {
     setLoading(true);
-    console.log("Success:", values);
     deepai.setApiKey("8557e47b-aaf7-4db7-9bea-06957c7dafb4");
 
     var resp = await deepai.callStandardApi("fantasy-world-generator", {
       text: values.description + " " + values.name,
       grid_size: "1",
     });
-    console.log(resp);
     const image = await getExampleImage(resp.output_url);
 
     const nft = {
@@ -65,7 +63,6 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log("go", metadata, write, data);
     if (isSuccess2 && metadata) {
       write();
     }

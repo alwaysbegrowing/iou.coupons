@@ -6,7 +6,6 @@ const NFT_API_KEY =
 export const client = new NFTStorage({ token: NFT_API_KEY });
 
 export async function getExampleImage(imageURL: string) {
-  console.log({ imageURL });
   const r = await fetch(imageURL);
   if (!r.ok) {
     throw new Error(`error fetching image: [${r.statusText}]: ${r.status}`);

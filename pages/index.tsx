@@ -35,7 +35,6 @@ const App: React.FC = () => {
     ...address,
     functionName: "totalSupply",
   });
-  console.log(totalSupply);
 
   const { data, write, status } = useContractWrite(config);
 
@@ -44,7 +43,6 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log({ isSuccess, deleteId, write });
     if (isSuccess && deleteId && write) {
       write();
     }
