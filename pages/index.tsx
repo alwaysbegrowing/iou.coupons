@@ -70,11 +70,13 @@ const App: React.FC = () => {
                   ) : null
                 }
                 actions={[
-                  <DeleteOutlined
-                    disabled={address && !users[address]}
+                  <Button
                     onClick={() => setDeleteId(item.id.tokenId)}
-                    key="setting"
-                  />,
+                    key="delete"
+                    disabled={address && !users[address]}
+                  >
+                    <DeleteOutlined />
+                  </Button>,
                 ]}
               >
                 <Card.Meta
