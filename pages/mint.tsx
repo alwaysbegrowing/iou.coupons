@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
-import { Layout, theme, Form, Input, Button, Spin, Select } from "antd";
+import { Form, Input, Button, Spin, Select } from "antd";
 import { useContractWrite, usePrepareContractWrite, useAccount } from "wagmi";
 import abi from "../abi.json";
 const deepai = require("deepai");
@@ -79,7 +79,7 @@ const App: React.FC = () => {
     );
 
   if (address && !users[address]) {
-    return "this account is not allowed to mint";
+    return <>this account is not allowed to mint</>;
   }
   return (
     <>
